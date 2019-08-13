@@ -646,6 +646,27 @@ int main(int argc, char *argv[])
       }
    }
 
+   // Output the mesh and continuous energy (in the mesh nodes FE space).
+   {
+      GridFunctionCoefficient e_coeff(&e_gf);
+      ParFiniteElementSpace e_cg_pfes(pmesh, &H1FEC, 1);
+      ParGridFunction e_cg(&e_cg_pfes);
+      e_cg.ProjectDiscCoefficient(e_coeff, GridFunction::ARITHMETIC);
+      ostringstream mesh_name, e_name;
+      mesh_name << "mesh.m";
+      e_name << "energy.g";
+
+      ofstream mesh_ofs(mesh_name.str().c_str());
+      mesh_ofs.precision(8);
+      pmesh->PrintAsOne(mesh_ofs);
+      mesh_ofs.close();
+
+      ofstream e_ofs(e_name.str().c_str());
+      e_ofs.precision(8);
+      e_cg.SaveAsOne(e_ofs);
+      e_ofs.close();
+   }
+
    if (visualization)
    {
       vis_v.close();
